@@ -1,0 +1,4 @@
+players=[]
+Defenders=[]
+Midfielders=[]
+Attackers=[]

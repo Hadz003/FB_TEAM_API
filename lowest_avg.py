@@ -10,4 +10,4 @@ def lowest_AVG():
         if Average(players[i])<counter:
             counter=Average(players[i])
             found=str(players[i])
-    return jsonify ({"Lowest_Average" : str(found)})
+    return jsonify ({"Lowest_Average" : str(found)}),200

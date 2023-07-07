@@ -19,17 +19,17 @@ def handle_create_player():
     return create_player()
 
 
-@app.route('/Average',methods=['GET'])
+@app.route('/Average',methods=['POST'])
 def handle_average():
     return calc_average()
 
 
-@app.route('/make_team', methods=['GET'])
+@app.route('/make_team', methods=['POST'])
 def handle_team_select():
     return team_select()
 
 
-@app.route('/random_select', methods=['GET'])
+@app.route('/random_select', methods=['POST'])
 def handle_rand_select():
     return rand_select()
 

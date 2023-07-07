@@ -14,36 +14,34 @@ class player(object):
         self.position = position
         self.nationality = nationality
         self.ID = ID
+    
+    
+
+    def to_dict(self):
+        return {
+            "ID": str(self.ID),
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "apt": str(self.APT),
+            "set": str(self.SET),
+            "nationality": self.nationality,
+            "position": self.position
+        }
 
     def __str__(self):
-        return (
-            str(self.ID)
-            + " "
-            + self.first_name
-            + " "
-            + self.last_name
-            + " "
-            + str(self.APT)
-            + " "
-            + str(self.SET)
-            + " "
-            + self.nationality
-            + " "
-            + self.position
-        )
-
+        return str(self.to_dict())
 
 
 def create_player():
     global i_d
     if request.method=="POST":
-
-        first_name= request.form['first_name']
-        last_name= request.form['last_name']
-        apt= request.form['APT']
-        set_value= request.form['SET']
-        nationality= request.form['nationality']
-        position= request.form['position']
+        data=request.json
+        first_name= data.get('first_name')
+        last_name= data.get('last_name')
+        apt= data.get('APT')
+        set_value= data.get('SET')
+        nationality= data.get('nationality')
+        position= data.get('position')
 
         if not isinstance(first_name, str) or first_name.isdigit() or not first_name:
             return jsonify({"error": "Invalid first name"}), 400
@@ -96,4 +94,4 @@ def create_player():
 
 
     else:
-        return jsonify({'error':'invalid request'})
+        return jsonify({'error':'invalid request'}),400

@@ -5,11 +5,11 @@ import random
 def team_select():
 
     if len(players)<10:
-        return ("Not enough players available, please input more players to build a team")
-
-    num_of_def=request.form['num_of_def']
-    num_of_mid=request.form['num_of_mid']
-    num_of_attack=request.form['num_of_attack']
+        return ("Not enough players available, please input more players to build a team"),400
+    data=request.json
+    num_of_def=data.get('num_of_def')
+    num_of_mid=data.get('num_of_mid')
+    num_of_attack=data.get('num_of_attack')
 
 
     try:
@@ -34,7 +34,7 @@ def team_select():
         return jsonify({"error": "Invalid input. Please enter "+ str(len(Attackers))+ " or less Defenders"}), 400
     
     if (num_of_attack + num_of_def + num_of_mid)!=10:
-        return("not 10 players")
+        return("not 10 players"),404
     sorted_defence=sorted( Defenders, key=lambda player: player.SET, reverse=True)
     sorted_mid=sorted( Midfielders, key=lambda player: player.SET, reverse=True)
     sorted_attack=sorted( Attackers, key=lambda player: player.SET, reverse=True)
@@ -52,7 +52,9 @@ def team_select():
 
 
     team = defence + attack + midfield
-    string_3=''
-    for i in team:
-        string_3=string_3+str(i)+" \n"
-    return (string_3)
+    dict={}
+    for playe in team:
+        nam="player_"+str(playe.ID)
+        dict[nam]=str(playe.first_name)
+        print(dict[nam])
+    return jsonify({"Team":dict})

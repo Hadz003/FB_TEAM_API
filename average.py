@@ -6,9 +6,9 @@ def Average(player):
 
 def calc_average():
     found=False
-
-    find_by_name=request.form['find_by_name']
-    find_by_last_name=request.form['find_by_last_name']
+    data=request.json
+    find_by_name=data.get('find_by_name')
+    find_by_last_name=data.get('find_by_last_name')
 
     if not isinstance(find_by_name, str) or find_by_name.isdigit()==True or not find_by_name:
         return jsonify({"error": "Invalid first name"}), 400

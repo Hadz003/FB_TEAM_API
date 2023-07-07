@@ -1,10 +1,11 @@
 from arrays import (players)
-from flask import Flask, jsonify, request
+from flask import jsonify, request
 import random
 
 
 def rand_select():
-    rand_num=request.form['rand_num']  
+    data=request.json
+    rand_num=data.get('rand_num')
     try:
         rand_num=int(rand_num)
         if rand_num>len(players) or rand_num<0:
@@ -14,7 +15,10 @@ def rand_select():
 
 
     rand_list=random.sample(players,rand_num)
-    string=''
-    for i in rand_list:
-        string=string+str(i)+" \n"
-    return (string)
+    dict={}
+    for playe in rand_list:
+        nam="player_"+str(playe.ID)
+        dict[nam]=str(playe.first_name)
+        print(dict[nam])
+    return jsonify({"random_player_names":dict})
+

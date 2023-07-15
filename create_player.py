@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from auto_increment import auto_increment
 import mysql.connector
 
 host = '127.0.0.1' 
@@ -7,18 +8,16 @@ password = 'Kansas16'
 database = 'fb_team_database'  
 
 class player(object):
-    def __init__(self, ID, first_name, last_name, APT, SET, nationality, position):
+    def __init__(self, first_name, last_name, APT, SET, nationality, position):
         self.first_name = first_name
         self.last_name = last_name
         self.APT = APT
         self.SET = SET
         self.position = position
         self.nationality = nationality
-        self.ID = ID
 
     def to_dict(self):
         return {
-            "ID": str(self.ID),
             "first_name": self.first_name,
             "last_name": self.last_name,
             "apt": str(self.APT),
@@ -32,7 +31,6 @@ class player(object):
 
 
 def create_player():
-    global i_d
     if request.method=="POST":
         data=request.json
         first_name= data.get('first_name')
@@ -73,7 +71,27 @@ def create_player():
         valid_positions = ["Defender", "Midfielder", "Attacker"]
         if position not in valid_positions:
             return jsonify({"error": "Invalid position. Please choose from Defender, Midfielder, Attacker."}), 400
-        new_player = player(i_d, first_name, last_name, apt, set_value, nationality, position)
+        new_player = player( first_name, last_name, apt, set_value, nationality, position)
+        conn = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database
+        )
+        cursor = conn.cursor()
+        selectcheck_query='''SELECT * FROM players'''
+        cursor.execute(selectcheck_query)
+        check_=cursor.fetchall()
+
+        see=False
+        if len(check_)<1:
+            see=True
+            
+        cursor.close()
+        conn.close()
+
+        if see==True:
+            auto_increment()
         
         conn = mysql.connector.connect(
             host=host,

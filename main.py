@@ -5,6 +5,9 @@ from count import pos_count
 from sort_apt import APT_sort
 from highest_apt import highest_APT
 from lowest_avg import lowest_AVG
+from delete_player import delete_player_
+from clear_table import clear_table_
+from get_player import get_player
 from flask import Flask,render_template
 
 app = Flask(__name__)
@@ -40,3 +43,14 @@ def handle_highest_APT():
 @app.route('/lowest_avg',methods=['GET'])
 def handle_lowest_AVG():
     return lowest_AVG()
+
+@app.route("/delete_player", methods=["POST"])
+def handle_delete_player():
+    return delete_player_()
+
+@app.route("/clear_table", methods=["GET"])
+def handle_clear_table():
+    return clear_table_()
+@app.route("/get_player", methods=["POST"])
+def handle_get_player():
+    return get_player()

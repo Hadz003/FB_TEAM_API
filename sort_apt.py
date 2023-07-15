@@ -1,13 +1,22 @@
-from arrays import players
-from flask import Flask, jsonify, request
+from flask import jsonify
+import mysql.connector
 
-
+host = '127.0.0.1'  
+user = 'root'  
+password = 'Kansas16'  
+database = 'fb_team_database'  
 def APT_sort():
-    sorted_by_apt=sorted( players, key=lambda player: player.APT, reverse=True)
-    dict={}
-    for playe in sorted_by_apt:
-        nam="player_"+str(playe.ID)
-        dict[nam]=str(playe.first_name)
-        print(dict[nam])
-    return jsonify({"sorted players by apt":dict})
+    conn = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database)
+    cursor=conn.cursor()
+    highest_apt_query=''' Select * 
+                          FROM players
+                          ORDER BY apt DESC 
+                          '''
+    cursor.execute(highest_apt_query)
+    result=cursor.fetchall()
+    return jsonify({"sorted players by apt":result})
     

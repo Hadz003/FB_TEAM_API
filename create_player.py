@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, request
-from arrays import players,Defenders,Attackers,Midfielders
+from flask import jsonify, request
+import mysql.connector
 
-
-i_d = 1
-
+host = '127.0.0.1' 
+user = 'root' 
+password = 'Kansas16'  
+database = 'fb_team_database'  
 
 class player(object):
     def __init__(self, ID, first_name, last_name, APT, SET, nationality, position):
@@ -14,8 +15,6 @@ class player(object):
         self.position = position
         self.nationality = nationality
         self.ID = ID
-    
-    
 
     def to_dict(self):
         return {
@@ -75,22 +74,64 @@ def create_player():
         if position not in valid_positions:
             return jsonify({"error": "Invalid position. Please choose from Defender, Midfielder, Attacker."}), 400
         new_player = player(i_d, first_name, last_name, apt, set_value, nationality, position)
-        for i in players:
-            if i.first_name==new_player.first_name and i.last_name==new_player.last_name:
-                return("Player already added")
-        players.append(new_player)
-        i_d += 1
+        
+        conn = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database
+        )
+        cursor = conn.cursor()
 
-        if position == "Defender":
-            Defenders.append(new_player)
-            Defenders.sort(key=lambda player: player.SET, reverse=True)
-        elif position == "Midfielder":
-            Midfielders.append(new_player)
-            Midfielders.sort(key=lambda player: player.SET, reverse=True)
-        else:
-            Attackers.append(new_player)
-            Attackers.sort(key=lambda player: player.SET, reverse=True)
-        return jsonify({"message": "Player created successfully", "player": str(new_player)}), 201
+        select_query = '''
+        SELECT * 
+        FROM players 
+        WHERE first_name = %s AND last_name = %s AND apt = %s AND set_ = %s AND position_ = %s AND nationality = %s
+        '''
+        cursor.execute(select_query, (new_player.first_name, new_player.last_name, new_player.APT, new_player.SET, new_player.position, new_player.nationality))
+
+        result = cursor.fetchall()
+
+        player_exists = len(result) > 0
+        if player_exists==True:
+            return jsonify({"Exists":"Player Already Added"}),200
+        cursor.close()
+        conn.close()
+
+        if player_exists==False:
+            conn = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database)
+            cursor=conn.cursor()
+
+            insert_query='''
+            INSERT INTO players (first_name, last_name, apt, set_, position_, nationality)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            '''
+            cursor.execute(insert_query, (new_player.first_name, new_player.last_name, new_player.APT, new_player.SET, new_player.position, new_player.nationality))
+            conn.commit()
+            last_row=cursor.lastrowid
+            cursor.close()
+            conn.close()
+  
+        conn = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database)
+        cursor=conn.cursor()
+        return_player_query='''SELECT *
+                               FROM players
+                               WHERE id=%s
+                                 '''
+        cursor.execute(return_player_query,[last_row])
+        execute_player=cursor.fetchall()
+        conn.close()
+        cursor.close()
+        res_str="id:{} firstname: {} last_name: {}".format(execute_player[0][0], execute_player[0][1],execute_player[0][2])
+        return jsonify({"message": "Player created successfully", "Player":str(res_str)}), 201
 
 
     else:

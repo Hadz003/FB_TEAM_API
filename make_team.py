@@ -1,16 +1,79 @@
-from arrays import (players,Defenders,Attackers,Midfielders)
-from flask import Flask, jsonify, request
-import random
+from flask import jsonify, request
+
+import mysql.connector
+
+host = '127.0.0.1'  
+user = 'root'  
+password = 'Kansas16'  
+database = 'fb_team_database'  
 
 def team_select():
+    conn = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database)
+    cursor=conn.cursor()
+    query=''' Select * 
+            FROM players'''
+    cursor.execute(query)
+    result=cursor.fetchall()
+    conn.close()
+    cursor.close()
 
-    if len(players)<10:
+    if len(result)<10:
         return ("Not enough players available, please input more players to build a team"),400
     data=request.json
     num_of_def=data.get('num_of_def')
     num_of_mid=data.get('num_of_mid')
     num_of_attack=data.get('num_of_attack')
 
+    conn = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database)
+    cursor=conn.cursor()
+    return_player_query='''
+                            SELECT *
+                            FROM players
+                            WHERE position_=%s
+                        '''
+    cursor.execute(return_player_query,["Attacker"])
+    Attackers=cursor.fetchall()
+    conn.close()
+    cursor.close()
+    conn = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database)
+    cursor=conn.cursor()
+    return_player_query='''
+                            SELECT *
+                            FROM players
+                            WHERE position_=%s
+                        '''
+    cursor.execute(return_player_query,["Defender"])
+    Defenders=cursor.fetchall()
+    
+    conn.close()
+    cursor.close()
+    conn = mysql.connector.connect(
+                host=host,
+                user=user,
+                password=password,
+                database=database)
+    cursor=conn.cursor()
+    return_player_query='''
+                            SELECT *
+                            FROM players
+                            WHERE position_=%s
+                        '''
+    cursor.execute(return_player_query,["Midfielder"])
+    Midfielders=cursor.fetchall()
+    conn.close()
+    cursor.close()
 
     try:
         num_of_def=int(num_of_def)
@@ -35,9 +98,9 @@ def team_select():
     
     if (num_of_attack + num_of_def + num_of_mid)!=10:
         return("not 10 players"),404
-    sorted_defence=sorted( Defenders, key=lambda player: player.SET, reverse=True)
-    sorted_mid=sorted( Midfielders, key=lambda player: player.SET, reverse=True)
-    sorted_attack=sorted( Attackers, key=lambda player: player.SET, reverse=True)
+    sorted_defence=sorted( Defenders, key=lambda player: player[4], reverse=True)
+    sorted_mid=sorted( Midfielders, key=lambda player: player[4], reverse=True)
+    sorted_attack=sorted( Attackers, key=lambda player: player[4], reverse=True)
 
     defence=[0]*num_of_def
     midfield=[0]*num_of_mid
@@ -54,7 +117,7 @@ def team_select():
     team = defence + attack + midfield
     dict={}
     for playe in team:
-        nam="player_"+str(playe.ID)
-        dict[nam]=str(playe.first_name)
+        nam="player_"+str(playe[0])
+        dict[nam]=str(playe[1])
         print(dict[nam])
     return jsonify({"Team":dict})

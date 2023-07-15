@@ -1,13 +1,25 @@
-from arrays import (players)
-from average import Average
-from flask import Flask, jsonify, request
+from flask import jsonify
+import mysql.connector
 
+host = '127.0.0.1'  
+user = 'root'  
+password = 'Kansas16'  
+database = 'fb_team_database'  
 
 def lowest_AVG():
-    counter=100
-    found="None"
-    for i in range(len(players)):
-        if Average(players[i])<counter:
-            counter=Average(players[i])
-            found=str(players[i])
-    return jsonify ({"Lowest_Average" : str(found)}),200
+    conn = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+            database=database)
+    cursor=conn.cursor()
+    lowest_average_query=''' Select * 
+                          FROM players
+                          ORDER BY Average ASC 
+                          '''
+    cursor.execute(lowest_average_query)
+    result=cursor.fetchall()
+    res_str="id:{} firstname: {} last_name: {} average: {}".format(result[0][0], result[0][1],result[0][2], result[0][-1])
+    cursor.close()
+    conn.close()
+    return jsonify({"Lowest Average": str(res_str)}),200
